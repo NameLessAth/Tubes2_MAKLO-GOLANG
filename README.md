@@ -1,2 +1,3 @@
 # Tubes2_MAKLO-GOLANG
-maklo golang
+"maklo bikin web backendnya golang!"
+
