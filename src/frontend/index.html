@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wikipedia MAKLO</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
+</head>
+<body class="wallpaper">
+    <div class="centerXY">
+        <input type="text" id="start" class="textBox" size="24" placeholder="Masukkan Page Awal di sini">
+        <input type="text" id="destination" class="textBox" size="24" placeholder="Masukkan Page Akhir di sini">
+    </div>
+    <div class="startButton">
+        <button onclick="request()">Start</button>
+    </div>
+    <div class="popup" id="returnVal">
+        israel babi tet tengat tet tengat
+    </div>
+    <script>
+        function request(){
+            var start = document.getElementById('start').value;
+            var destination = document.getElementById('destination').value;
+            if (start.trim() === "israel" && destination.trim() === "babi") document.getElementById('returnVal').style.display = "block";
+            else document.getElementById('returnVal').style.display = "none";
+        }
+    </script>
+</body>
+</html>
