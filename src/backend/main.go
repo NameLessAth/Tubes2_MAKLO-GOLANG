@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -105,6 +106,34 @@ func (node *TreeNode) AddChildren() {
 	})
 }
 
+func GetTitle(linkName string) string {
+	// Request the HTML page.
+	var link string
+	link = "https://en.wikipedia.org/wiki/"
+	link += linkName
+	res, err := http.Get(link)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		fmt.Printf("%s\n", link)
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Find the links in the main content section
+	var temp string = doc.Find("title").Text()
+	idEnd := strings.LastIndex(temp, " - Wikipedia")
+	return temp[0:idEnd]
+	
+}
+
 func (node *TreeNode) GetPath(path []string) []string {
 	if node.Parent != nil {
 		path = node.Parent.GetPath(path)
@@ -120,6 +149,7 @@ var found bool = false
 var visited = make(map[string]int)
 
 func BFS(goal string) {
+	start := time.Now()
 	for !found {
 		if queue[0].Root == goal {
 			var path []string
@@ -128,7 +158,7 @@ func BFS(goal string) {
 			var i int = 1
 			fmt.Println("Path :")
 			for _, page := range path {
-				fmt.Printf("%d. %s\n", i, page)
+				fmt.Printf("%d. %s\n", i, GetTitle(page))
 				i++
 			}
 			found = true
@@ -139,6 +169,8 @@ func BFS(goal string) {
 		}
 		Dequeue()
 	}
+	end := time.Since(start)
+	fmt.Printf("Time elapsed: %s", end);
 }
 
 func DFS(start *TreeNode, curPath []*TreeNode, depth int, goal string) bool {
@@ -149,7 +181,7 @@ func DFS(start *TreeNode, curPath []*TreeNode, depth int, goal string) bool {
 		var i int = 1
 		fmt.Println("Path :")
 		for _, page := range path {
-			fmt.Printf("%d. %s\n", i, page)
+			fmt.Printf("%d. %s\n", i, GetTitle(page))
 			i++
 		}
 		return true
@@ -177,10 +209,13 @@ func IDS(goal string) {
 	var curPath []*TreeNode
 	curPath = append(curPath, queue[0])
 	var depth int = 1
+	start := time.Now()
 	for (!found) {
 		found = DFS(queue[0], curPath, depth, goal)
 		depth++
 	}
+	end := time.Since(start)
+	fmt.Printf("Time elapsed: %s", end);
 }
 
 func main() {
