@@ -1,10 +1,45 @@
-.centerXY {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, 250%);
-    padding: 10px;
+* {
+    margin: 0;
+    padding: 0;
 }
+
+body {
+    background-image: url("assets/background2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin-left: 20%;
+    align-items: center;
+}
+
+.logo {
+    margin-top: 30px;
+    width: 50%;
+}
+
+.input {
+    margin: 30px 0;
+    display: flex;
+}
+
+.textke {
+    margin: 0 10px;
+}
+
+.switch {
+    width: 40%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .BFSButton button{
     background-image: url('assets/BFSButton.png');
     background-size: cover;
@@ -12,27 +47,14 @@
     cursor: pointer;
     width: 100px;
     height: 40px;
-    margin: auto;
-    margin-left: 30%;
-    margin-top: 20%;
 }
 .IDSButton button{
     background-image: url('assets/IDSButton.png');
     background-size: cover;
     border: none;   
     cursor: pointer;
-    position: relative;
-    width: 100px; /* Adjust the width and height as needed */
+    width: 100px;
     height: 40px;
-    top: 70%;
-    left: 610px;
-}
-.wallpaper {
-    margin: auto;
-    background-position: center;
-    background-size: cover;
-    background-color: rgba(255, 255, 255, 0.7);
-    background-image: url('assets/background2.png');/* Change the background color to your desired color or add background-image property with URL for an image */
 }
 .popup {
     display: none;
@@ -44,11 +66,4 @@
     padding: 10px 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-.logo{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -80%);
-    padding: 10px;
 }
