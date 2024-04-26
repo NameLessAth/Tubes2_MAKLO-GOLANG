@@ -25,7 +25,7 @@
                 <button onclick="request()"></button>
             </div>
             <div class="BFSButton">
-                <button onclick="request()"></button>
+                <button onclick="request2()"></button>
             </div>
         </div>
 
@@ -40,6 +40,25 @@
     </div>
     <script>
         function request(){
+            const start = document.getElementById('start').value;
+            const destination = document.getElementById('destination').value;
+
+            fetch("http://localhost:8080/req", {
+                method : 'POST',
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    start: start,
+                    destination: destination
+                })
+            }).then(response => response.json())
+            .then(response => {
+                document.getElementById('returnVal').style.display = "block";
+                document.getElementById('returnVal').innerText = "Hasil: " + response.output  ;
+            })
+        }
+        function request2(){
             var start = document.getElementById('start').value;
             var destination = document.getElementById('destination').value;
             if (start.trim() === "israel" && destination.trim() === "babi") document.getElementById('returnVal').style.display = "block";

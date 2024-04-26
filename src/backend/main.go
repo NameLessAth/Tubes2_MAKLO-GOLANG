@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/rs/cors"
 )
 
 type TreeNode struct {
@@ -133,7 +135,7 @@ func GetTitle(linkName string) string {
 	var temp string = doc.Find("title").Text()
 	idEnd := strings.LastIndex(temp, " - Wikipedia")
 	return temp[0:idEnd]
-	
+
 }
 
 func (node *TreeNode) GetPath(path []string) []string {
@@ -172,7 +174,7 @@ func BFS(goal string) {
 		Dequeue()
 	}
 	end := time.Since(start)
-	fmt.Printf("Time elapsed: %s", end);
+	fmt.Printf("Time elapsed: %s", end)
 }
 
 func boolHelper(b bool) *bool {
@@ -193,7 +195,7 @@ func DLS(wg *sync.WaitGroup, start *TreeNode, curPath []*TreeNode, depth int, go
 			i++
 		}
 		found = boolHelper(true)
-	} else if (depth <= 0){ //sudah mencapai kedalaman maksimum tetapi tidak menemukan goal
+	} else if depth <= 0 { //sudah mencapai kedalaman maksimum tetapi tidak menemukan goal
 		found = boolHelper(false)
 	} else { //lanjutkan pencarian
 		if visited[start.Root] == 0 { //menandai current node sudah dikunjungi
@@ -201,8 +203,10 @@ func DLS(wg *sync.WaitGroup, start *TreeNode, curPath []*TreeNode, depth int, go
 		}
 		start.AddChildren()
 		for _, v := range start.Children { //melanjutkan DFS pada children dari node start
-			if (visited[v.Root]==0) {DLS(wg, v, append(curPath, v), depth-1, goal, found)}
-			if (found == boolHelper(true)) {
+			if visited[v.Root] == 0 {
+				DLS(wg, v, append(curPath, v), depth-1, goal, found)
+			}
+			if found == boolHelper(true) {
 				break
 			}
 		}
@@ -217,33 +221,82 @@ func IDS(goal string) {
 	var depth int = 1
 	start := time.Now()
 
-	for (!found) {
+	for !found {
 		wg.Add(1)
 		go DLS(&wg, queue[0], curPath, depth, goal, &found)
 		depth++
 	}
 	end := time.Since(start)
-	fmt.Printf("Time elapsed: %s", end);
+	fmt.Printf("Time elapsed: %s", end)
+}
+
+// func queryHandler(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method != http.MethodPost {
+// 		w.WriteHeader(http.StatusMethodNotAllowed)
+// 		return
+// 	}
+
+//		var input InputData
+//		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+//			w.WriteHeader(http.StatusBadRequest)
+//			fmt.Fprintf(w, "Error: %v", err)
+//			return
+//		}
+//		fmt.Printf("Received input: %+v", input)
+//		responseData := map[string]string{"message": "Received input successfully"}
+//		json.NewEncoder(w).Encode(responseData)
+//	}
+type RequestServer struct {
+	Start       string `json:"start"`
+	Destination string `json:"destination"`
+}
+
+type ResponseServer struct {
+	Output string `json:"output"`
 }
 
 func main() {
-	var awal, akhir, metode string
-	fmt.Println("Masukkan page awal : ")
-	fmt.Scanln(&awal)
-	fmt.Println("Masukkan page akhir : ")
-	fmt.Scanln(&akhir)
-	if awal == akhir {
-		fmt.Printf("Kedua page sama\n")
-	} else {
-		fmt.Printf("BFS/IDS\n")
-		fmt.Scanln(&metode)
-		awal := TreeNode{Root: awal}
-		Enqueue(&awal)
-		fmt.Printf("Pencarian dimulai!\n")
-		if (metode == "BFS") {
-			BFS(akhir)
-		} else {
-			IDS(akhir)
+	port := 8080
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
+	// Create a new ServeMux (router)
+	mux := http.NewServeMux()
+
+	// register a handler func for the route
+	mux.HandleFunc("/req", func(w http.ResponseWriter, r *http.Request) {
+		// Check if the request method is POST
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
-	}
+		// Decode the request body into a NameRequest struct
+		var request RequestServer
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		// Generate the response message
+		response := ResponseServer{
+			Output: fmt.Sprintf("Start: %s %s", request.Start, request.Destination),
+		}
+		// Encode response data to JSON
+		responseJSON, err := json.Marshal(response)
+		if err != nil {
+			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+			return
+		}
+		// Set the Content-Type header to application/json
+		w.Header().Set("Content-Type", "application/json")
+		// CORS
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Write the JSON response with status code 200 (OK)
+		w.WriteHeader(http.StatusOK)
+		w.Write(responseJSON)
+	})
+	// Start the HTTP server on the specified port
+	fmt.Printf("Server listening on port %d\n", port)
+
+	http.ListenAndServe(":8080", c.Handler(mux))
 }
