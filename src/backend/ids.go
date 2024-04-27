@@ -2,15 +2,56 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 var found bool = false
 
 func boolHelper(b bool) *bool {
 	return &b
+}
+
+func (node *TreeNode) AddChildren() {
+	// Request the HTML page.
+	var link string
+	link = "https://en.wikipedia.org/wiki/"
+	link += node.Root
+	res, err := http.Get(link)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		fmt.Printf("%s\n", link)
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Find the links in the main content section
+	doc.Find("#mw-content-text").Find("a").Each(func(i int, s *goquery.Selection) {
+		// For each link found, get the href attribute and text
+		link, _ := s.Attr("href")
+		// Check if the link stays within Wikipedia domain
+		if strings.HasPrefix(link, "/wiki/") && !strings.Contains(link, ":") {
+			var title string = GetTitle(link[6:])
+			if !node.isChild(link[6:]) {
+				child := TreeNode{Parent: node, Root: title}
+				node.Children = append(node.Children, &child)
+			}
+		}
+	})
 }
 
 func DLS(wg *sync.WaitGroup, start *TreeNode, curPath []*TreeNode, depth int, goal string, found *bool) {
