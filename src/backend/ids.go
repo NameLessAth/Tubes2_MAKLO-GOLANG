@@ -4,19 +4,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"runtime"
-	"strings"
-	"sync"
+	"strings"	
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 var found bool = false
-
-func boolHelper(b bool) *bool {
-	return &b
-}
 
 func (node *TreeNode) AddChildren() {
 	// Request the HTML page.
@@ -54,8 +48,7 @@ func (node *TreeNode) AddChildren() {
 	})
 }
 
-func DLS(wg *sync.WaitGroup, start *TreeNode, curPath []*TreeNode, depth int, goal string, found *bool) {
-	defer wg.Done()
+func DLS(start *TreeNode, depth int, goal string) {
 
 	if start.Root == goal { //menemukan goal
 		var path []string
@@ -67,9 +60,9 @@ func DLS(wg *sync.WaitGroup, start *TreeNode, curPath []*TreeNode, depth int, go
 			fmt.Printf("%d. %s\n", i, GetTitle(page))
 			i++
 		}
-		found = boolHelper(true)
+		found = true
 	} else if depth <= 0 { //sudah mencapai kedalaman maksimum tetapi tidak menemukan goal
-		found = boolHelper(false)
+		found = false
 	} else { //lanjutkan pencarian
 		if visited[start.Root] == 0 { //menandai current node sudah dikunjungi
 			visited[start.Root] = 1
@@ -77,26 +70,21 @@ func DLS(wg *sync.WaitGroup, start *TreeNode, curPath []*TreeNode, depth int, go
 		start.AddChildren()
 		for _, v := range start.Children { //melanjutkan DFS pada children dari node start
 			if visited[v.Root] == 0 {
-				DLS(wg, v, append(curPath, v), depth-1, goal, found)
+				DLS(v, depth-1, goal)
 			}
-			if found == boolHelper(true) {
-				break
+			if found {
+				return
 			}
 		}
 	}
 }
 
 func IDS(goal string) {
-	runtime.GOMAXPROCS(5)
-	var wg sync.WaitGroup
-	var curPath []*TreeNode
-	curPath = append(curPath, queue[0])
 	var depth int = 1
 	start := time.Now()
 
 	for !found {
-		wg.Add(1)
-		go DLS(&wg, queue[0], curPath, depth, goal, &found)
+		go DLS(queue[0], depth, goal)
 		depth++
 	}
 	end := time.Since(start)
