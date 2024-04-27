@@ -74,13 +74,16 @@ func DLS(start *TreeNode, depth int, goal string) {
 	}
 }
 
-func IDS(goal string) (int, int, []string, int64){
+func IDS(begin string, goal string) (int, int, []string, int64){
 	ClearVisited()
 	var depth int = 1
 	start := time.Now()
 
+	var startNode TreeNode ;
+	startNode.Root = GetTitle(begin);
+	startNode.AddChildren();
 	for !found {
-		go DLS(queue[0], depth, goal)
+		go DLS(&startNode, depth, goal)
 		depth++
 	}
 
