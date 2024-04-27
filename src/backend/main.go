@@ -15,7 +15,6 @@ import (
 type TreeNode struct {
 	Parent   *TreeNode
 	Root     string
-	Title    string
 	Children []*TreeNode
 }
 

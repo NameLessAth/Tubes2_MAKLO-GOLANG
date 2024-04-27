@@ -58,10 +58,6 @@ func (node *TreeNode) AddChildToQueue() {
 			}
 		}
 	})
-
-	var temp string = doc.Find("title").Text()
-	idEnd := strings.LastIndex(temp, " - Wikipedia")
-	node.Title = temp[0:idEnd]
 }
 
 func BFS(initial string, goal string) (int64, int, []string, int64) {
@@ -87,7 +83,8 @@ func BFS(initial string, goal string) (int64, int, []string, int64) {
 	// Proses pencarian BFS, akan dicari selama node belum ditemukan
 	for {
 		// Artikel Tujuan ditemukan!
-		if queue[0].Title == goalTitle {
+		var headTitle string = GetTitle(queue[0].Root)
+		if headTitle == goalTitle {
 			// Menyimmpan jalan yang dilalui
 			path = queue[0].GetPath(path)
 
@@ -96,11 +93,11 @@ func BFS(initial string, goal string) (int64, int, []string, int64) {
 		}
 
 		// Mengecek apakah artikel sudah pernah dikunjungi, jika sudah pernah dikunjungi maka tidak diproses
-		if visited[queue[0].Title] == 0 {
+		if visited[headTitle] == 0 {
 			// Menambah jumlah artikel yang diperiksa
 			artikelDiperiksa++
 			// Mencatat artikel telah dikunjungi
-			visited[queue[0].Title] = 1
+			visited[headTitle] = 1
 			// Memasukkan semua link pada artikel tersebut ke queue
 			queue[0].AddChildToQueue()
 		}
