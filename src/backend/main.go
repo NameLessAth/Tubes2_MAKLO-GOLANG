@@ -88,6 +88,7 @@ type WikipediaPage struct {
 // Function to check if a URL corresponds to a valid article on English Wikipedia
 func IsTitleValid(url string) bool {
 	// Extract page title from URL
+	url = "https://en.wikipedia.org/wiki/" + url
 	parts := strings.Split(url, "/")
 	pageTitle := parts[len(parts)-1]
 
