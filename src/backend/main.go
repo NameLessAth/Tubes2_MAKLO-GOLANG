@@ -15,6 +15,7 @@ import (
 type TreeNode struct {
 	Parent   *TreeNode
 	Root     string
+	Title    string
 	Children []*TreeNode
 }
 
@@ -186,7 +187,6 @@ func main() {
 
 	http.ListenAndServe(":8080", c.Handler(mux))
 }
-
 
 //BUAT NGETES IN CASE ADA YANG ERROR LAGI nanti aja dihapusnya :D
 // func main() {
