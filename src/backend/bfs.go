@@ -60,7 +60,7 @@ func (node *TreeNode) AddChildToQueue() {
 	})
 }
 
-func BFS(initial string, goal string) (int64, int, []string, float64) {
+func BFS(initial string, goal string) (int64, int, []string, int64) {
 	// Membersihkan Map Visited dan Queue
 	ClearQueue()
 	ClearVisited()
@@ -106,7 +106,7 @@ func BFS(initial string, goal string) (int64, int, []string, float64) {
 	}
 
 	// Menghitung total waktu
-	end := time.Since(start).Seconds()
+	end := time.Since(start).Milliseconds()
 
 	// Return
 	return artikelDiperiksa, len(path), path, end

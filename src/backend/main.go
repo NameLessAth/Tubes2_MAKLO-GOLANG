@@ -1,14 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/rs/cors"
 )
 
 // ADT Tree untuk tiap artikel
@@ -74,10 +72,10 @@ func IsTitleValid(linkName string) bool {
 func (node *TreeNode) GetPath(path []string) []string {
 	if node.Parent != nil {
 		path = node.Parent.GetPath(path)
-		path = append(path, node.Root)
+		path = append(path, GetTitle(node.Root))
 		return path
 	} else {
-		path = append(path, node.Root)
+		path = append(path, GetTitle(node.Root))
 		return path
 	}
 }
@@ -116,47 +114,55 @@ type ResponseServer struct {
 }
 
 func main() {
-	port := 8080
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-	})
-	// Create a new ServeMux (router)
-	mux := http.NewServeMux()
-
-	// register a handler func for the route
-	mux.HandleFunc("/req", func(w http.ResponseWriter, r *http.Request) {
-		// Check if the request method is POST
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-		// Decode the request body into a NameRequest struct
-		var request RequestServer
-		err := json.NewDecoder(r.Body).Decode(&request)
-		if err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-		// Generate the response message
-		response := ResponseServer{
-			Output: fmt.Sprintf("Start: %s %s", request.Start, request.Destination),
-		}
-		// Encode response data to JSON
-		responseJSON, err := json.Marshal(response)
-		if err != nil {
-			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-			return
-		}
-		// Set the Content-Type header to application/json
-		w.Header().Set("Content-Type", "application/json")
-		// CORS
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		// Write the JSON response with status code 200 (OK)
-		w.WriteHeader(http.StatusOK)
-		w.Write(responseJSON)
-	})
-	// Start the HTTP server on the specified port
-	fmt.Printf("Server listening on port %d\n", port)
-
-	http.ListenAndServe(":8080", c.Handler(mux))
+	var a, d int64
+	var b int
+	var c []string
+	a, b, c, d = BFS("Garut", "Islam")
+	fmt.Println(a, b, c, d)
 }
+
+// func main() {
+// 	port := 8080
+// 	c := cors.New(cors.Options{
+// 		AllowedOrigins: []string{"*"},
+// 	})
+// 	// Create a new ServeMux (router)
+// 	mux := http.NewServeMux()
+
+// 	// register a handler func for the route
+// 	mux.HandleFunc("/req", func(w http.ResponseWriter, r *http.Request) {
+// 		// Check if the request method is POST
+// 		if r.Method != http.MethodPost {
+// 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// 			return
+// 		}
+// 		// Decode the request body into a NameRequest struct
+// 		var request RequestServer
+// 		err := json.NewDecoder(r.Body).Decode(&request)
+// 		if err != nil {
+// 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+// 			return
+// 		}
+// 		// Generate the response message
+// 		response := ResponseServer{
+// 			Output: fmt.Sprintf("Start: %s %s", request.Start, request.Destination),
+// 		}
+// 		// Encode response data to JSON
+// 		responseJSON, err := json.Marshal(response)
+// 		if err != nil {
+// 			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		// Set the Content-Type header to application/json
+// 		w.Header().Set("Content-Type", "application/json")
+// 		// CORS
+// 		w.Header().Set("Access-Control-Allow-Origin", "*")
+// 		// Write the JSON response with status code 200 (OK)
+// 		w.WriteHeader(http.StatusOK)
+// 		w.Write(responseJSON)
+// 	})
+// 	// Start the HTTP server on the specified port
+// 	fmt.Printf("Server listening on port %d\n", port)
+
+// 	http.ListenAndServe(":8080", c.Handler(mux))
+// }
