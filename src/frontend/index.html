@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wikipedia MAKLO</title>
     <link rel="stylesheet" href="style.css">
@@ -22,10 +22,10 @@
 
         <div class="switch">
             <div class="IDSButton">
-                <button onclick="request()"></button>
+                <button onclick="request2()"></button>
             </div>
             <div class="BFSButton">
-                <button onclick="request2()"></button>
+                <button onclick="request()"></button>
             </div>
         </div>
 
@@ -36,12 +36,15 @@
     </div>
     
     <div class="popup" id="returnVal">
-        israel babi tet tengat tet tengat
+        placeholder
     </div>
     <script>
         function request(){
             const start = document.getElementById('start').value;
             const destination = document.getElementById('destination').value;
+
+            document.getElementById('returnVal').style.display = "block";
+            document.getElementById('returnVal').innerHTML = "Sedang dilakukan BFS...";
 
             fetch("http://localhost:8080/req", {
                 method : 'POST',
@@ -50,19 +53,37 @@
                 },
                 body: JSON.stringify({
                     start: start,
-                    destination: destination
+                    destination: destination,
+                    algo: "BFS"
                 })
             }).then(response => response.json())
             .then(response => {
                 document.getElementById('returnVal').style.display = "block";
-                document.getElementById('returnVal').innerText = "Hasil: " + response.output  ;
+                document.getElementById('returnVal').innerHTML = "Hasil: " + response.output + "<br />" + "Hasil"  ;
             })
         }
         function request2(){
-            var start = document.getElementById('start').value;
-            var destination = document.getElementById('destination').value;
-            if (start.trim() === "israel" && destination.trim() === "babi") document.getElementById('returnVal').style.display = "block";
-            else document.getElementById('returnVal').style.display = "none";
+            const start = document.getElementById('start').value;
+            const destination = document.getElementById('destination').value;
+
+            document.getElementById('returnVal').style.display = "block";
+            document.getElementById('returnVal').innerHTML = "Sedang dilakukan IDS...";
+
+            fetch("http://localhost:8080/req", {
+                method : 'POST',
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    start: start,
+                    destination: destination,
+                    algo: "IDS"
+                })
+            }).then(response => response.json())
+            .then(response => {
+                document.getElementById('returnVal').style.display = "block";
+                document.getElementById('returnVal').innerHTML = "Hasil: " + response.output + "<br />" + "Hasil"  ;
+            })
         }
     </script>
 </body>
