@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/rs/cors"
 )
 
 // ADT Tree untuk tiap artikel
@@ -54,20 +56,6 @@ func GetTitle(linkName string) string {
 	return temp[0:idEnd]
 }
 
-// Fungsi untuk mengecek apakah link yang diinputkan merupakan link yang valid
-func IsTitleValid(linkName string) bool {
-	// Request the HTML page.
-	var link string
-	link = "https://en.wikipedia.org/wiki/"
-	link += linkName
-	res, err := http.Get(link)
-	if err != nil {
-		return false
-	}
-	defer res.Body.Close()
-	return true
-}
-
 // Fungsi untuk mendapatkan artikel yang dilalui
 func (node *TreeNode) GetPath(path []string) []string {
 	if node.Parent != nil {
@@ -113,56 +101,83 @@ type ResponseServer struct {
 	Output string `json:"output"`
 }
 
-func main() {
-	var a, d int64
-	var b int
-	var c []string
-	a, b, c, d = BFS("Garut", "Islam")
-	fmt.Println(a, b, c, d)
+// WikipediaPage represents a Wikipedia page
+type WikipediaPage struct {
+	Query struct {
+		Pages map[string]struct {
+			Missing bool `json:"missing"`
+		} `json:"pages"`
+	} `json:"query"`
 }
 
-// func main() {
-// 	port := 8080
-// 	c := cors.New(cors.Options{
-// 		AllowedOrigins: []string{"*"},
-// 	})
-// 	// Create a new ServeMux (router)
-// 	mux := http.NewServeMux()
+// Function to check if a URL corresponds to a valid article on English Wikipedia
+func IsTitleValid(url string) bool {
+	// Extract page title from URL
+	parts := strings.Split(url, "/")
+	pageTitle := parts[len(parts)-1]
 
-// 	// register a handler func for the route
-// 	mux.HandleFunc("/req", func(w http.ResponseWriter, r *http.Request) {
-// 		// Check if the request method is POST
-// 		if r.Method != http.MethodPost {
-// 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-// 			return
-// 		}
-// 		// Decode the request body into a NameRequest struct
-// 		var request RequestServer
-// 		err := json.NewDecoder(r.Body).Decode(&request)
-// 		if err != nil {
-// 			http.Error(w, "Invalid request body", http.StatusBadRequest)
-// 			return
-// 		}
-// 		// Generate the response message
-// 		response := ResponseServer{
-// 			Output: fmt.Sprintf("Start: %s %s", request.Start, request.Destination),
-// 		}
-// 		// Encode response data to JSON
-// 		responseJSON, err := json.Marshal(response)
-// 		if err != nil {
-// 			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		// Set the Content-Type header to application/json
-// 		w.Header().Set("Content-Type", "application/json")
-// 		// CORS
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		// Write the JSON response with status code 200 (OK)
-// 		w.WriteHeader(http.StatusOK)
-// 		w.Write(responseJSON)
-// 	})
-// 	// Start the HTTP server on the specified port
-// 	fmt.Printf("Server listening on port %d\n", port)
+	// Make a request to the Wikipedia API
+	resp, err := http.Get(fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&titles=%s&redirects=1", pageTitle))
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
 
-// 	http.ListenAndServe(":8080", c.Handler(mux))
-// }
+	// Decode the JSON response
+	var wikiPage WikipediaPage
+	if err := json.NewDecoder(resp.Body).Decode(&wikiPage); err != nil {
+		return false
+	}
+
+	// Check if the page exists
+	if len(wikiPage.Query.Pages) == 0 || wikiPage.Query.Pages[pageTitle].Missing {
+		return false
+	}
+	return true
+}
+
+func main() {
+	port := 8080
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
+	// Create a new ServeMux (router)
+	mux := http.NewServeMux()
+
+	// register a handler func for the route
+	mux.HandleFunc("/req", func(w http.ResponseWriter, r *http.Request) {
+		// Check if the request method is POST
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		// Decode the request body into a NameRequest struct
+		var request RequestServer
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		// Generate the response message
+		response := ResponseServer{
+			Output: fmt.Sprintf("Start: %s %s", request.Start, request.Destination),
+		}
+		// Encode response data to JSON
+		responseJSON, err := json.Marshal(response)
+		if err != nil {
+			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+			return
+		}
+		// Set the Content-Type header to application/json
+		w.Header().Set("Content-Type", "application/json")
+		// CORS
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Write the JSON response with status code 200 (OK)
+		w.WriteHeader(http.StatusOK)
+		w.Write(responseJSON)
+	})
+	// Start the HTTP server on the specified port
+	fmt.Printf("Server listening on port %d\n", port)
+
+	http.ListenAndServe(":8080", c.Handler(mux))
+}
