@@ -41,7 +41,7 @@ func (node *TreeNode) AddChildren() {
 		link, _ := s.Attr("href")
 		// Check if the link stays within Wikipedia domain
 		if strings.HasPrefix(link, "/wiki/") && !strings.Contains(link, ":") {
-			var title string = GetTitle(link[6:])
+			var title string = link[6:]
 			if !node.isChild(link[6:]) {
 				child := TreeNode{Parent: node, Root: title}
 				node.Children = append(node.Children, &child)
@@ -83,10 +83,10 @@ func IDS(begin string, goal string) (int64, int, []string, int64) {
 	start := time.Now()
 
 	var startNode TreeNode
-	startNode.Root = GetTitle(begin)
+	startNode.Root = begin
 	startNode.AddChildren()
 	for !found {
-		go DLS(&startNode, depth, goal)
+		DLS(&startNode, depth, goal)
 		depth++
 	}
 
