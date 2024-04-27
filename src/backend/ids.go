@@ -11,6 +11,8 @@ import (
 )
 
 var found bool = false
+var artikelDiperiksa = 0
+var path []string
 
 func (node *TreeNode) AddChildren() {
 	// Request the HTML page.
@@ -51,15 +53,7 @@ func (node *TreeNode) AddChildren() {
 func DLS(start *TreeNode, depth int, goal string) {
 
 	if start.Root == goal { //menemukan goal
-		var path []string
 		path = start.GetPath(path)
-
-		var i int = 1
-		fmt.Println("Path :")
-		for _, page := range path {
-			fmt.Printf("%d. %s\n", i, GetTitle(page))
-			i++
-		}
 		found = true
 	} else if depth <= 0 { //sudah mencapai kedalaman maksimum tetapi tidak menemukan goal
 		found = false
@@ -70,6 +64,7 @@ func DLS(start *TreeNode, depth int, goal string) {
 		start.AddChildren()
 		for _, v := range start.Children { //melanjutkan DFS pada children dari node start
 			if visited[v.Root] == 0 {
+				artikelDiperiksa++
 				DLS(v, depth-1, goal)
 			}
 			if found {
@@ -79,7 +74,8 @@ func DLS(start *TreeNode, depth int, goal string) {
 	}
 }
 
-func IDS(goal string) {
+func IDS(goal string) (int, int, []string, int64){
+	ClearVisited()
 	var depth int = 1
 	start := time.Now()
 
@@ -87,6 +83,8 @@ func IDS(goal string) {
 		go DLS(queue[0], depth, goal)
 		depth++
 	}
-	end := time.Since(start)
-	fmt.Printf("Time elapsed: %s", end)
+
+	end := time.Since(start).Milliseconds()
+	// Return
+	return artikelDiperiksa, len(path), path, end
 }
