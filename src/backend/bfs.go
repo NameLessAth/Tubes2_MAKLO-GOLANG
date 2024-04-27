@@ -65,6 +65,9 @@ func BFS(initial string, goal string) (int64, int, []string, int64) {
 	ClearQueue()
 	ClearVisited()
 
+	// Deklarasi title goal
+	var goalTitle string = GetTitle(goal)
+
 	// Memasukkan artikel awal pada queue
 	Enqueue(&TreeNode{Root: GetTitle(initial)})
 
@@ -77,13 +80,11 @@ func BFS(initial string, goal string) (int64, int, []string, int64) {
 	// Mulai menghitung
 	start := time.Now()
 
-	// Deklarasi title goal
-	var goalTitle string = GetTitle(goal)
-
 	// Proses pencarian BFS, akan dicari selama node belum ditemukan
 	for {
 		// Artikel Tujuan ditemukan!
-		if GetTitle(queue[0].Root) == goalTitle {
+		var headTitle string = GetTitle(queue[0].Root)
+		if headTitle == goalTitle {
 			// Menyimmpan jalan yang dilalui
 			path = queue[0].GetPath(path)
 
@@ -92,11 +93,11 @@ func BFS(initial string, goal string) (int64, int, []string, int64) {
 		}
 
 		// Mengecek apakah artikel sudah pernah dikunjungi, jika sudah pernah dikunjungi maka tidak diproses
-		if visited[GetTitle(queue[0].Root)] == 0 {
+		if visited[headTitle] == 0 {
 			// Menambah jumlah artikel yang diperiksa
 			artikelDiperiksa++
 			// Mencatat artikel telah dikunjungi
-			visited[GetTitle(queue[0].Root)] = 1
+			visited[headTitle] = 1
 			// Memasukkan semua link pada artikel tersebut ke queue
 			queue[0].AddChildToQueue()
 		}
