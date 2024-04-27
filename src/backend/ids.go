@@ -10,9 +10,10 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-var found bool = false
-var artikelDiperiksa int64 = 0
+var found bool
+var artikelDiperiksa int64
 var path []string
+var depth int
 
 func (node *TreeNode) AddChildren() {
 	// Request the HTML page.
@@ -76,9 +77,10 @@ func DLS(start *TreeNode, depth int, goal string) {
 
 func IDS(begin string, goal string) (int64, int, []string, int64) {
 	ClearVisited()
-	var depth int = 1
+	depth = 1
 	artikelDiperiksa = 0
 	path = []string{}
+	found = false
 
 	start := time.Now()
 
@@ -87,6 +89,7 @@ func IDS(begin string, goal string) (int64, int, []string, int64) {
 	startNode.AddChildren()
 	for !found {
 		DLS(&startNode, depth, goal)
+		ClearVisited()
 		depth++
 	}
 

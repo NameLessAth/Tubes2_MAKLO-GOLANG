@@ -186,3 +186,27 @@ func main() {
 
 	http.ListenAndServe(":8080", c.Handler(mux))
 }
+
+
+//BUAT NGETES IN CASE ADA YANG ERROR LAGI nanti aja dihapusnya :D
+// func main() {
+// 	var awal, akhir string
+// 	fmt.Println("Masukkan page awal : ")
+// 	fmt.Scanln(&awal)
+// 	fmt.Println("Masukkan page akhir : ")
+// 	fmt.Scanln(&akhir)
+// 	if awal == akhir {
+// 		fmt.Printf("Kedua page sama\n")
+// 	} else {
+// 		fmt.Println(IDS(awal, akhir))
+// 	}
+// 	fmt.Println("Masukkan page awal : ")
+// 	fmt.Scanln(&awal)
+// 	fmt.Println("Masukkan page akhir : ")
+// 	fmt.Scanln(&akhir)
+// 	if awal == akhir {
+// 		fmt.Printf("Kedua page sama\n")
+// 	} else {
+// 		fmt.Println(IDS(awal, akhir))
+// 	}
+// }
