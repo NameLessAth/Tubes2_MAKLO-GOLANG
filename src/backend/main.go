@@ -76,31 +76,6 @@ func ClearVisited() {
 	}
 }
 
-// func queryHandler(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodPost {
-// 		w.WriteHeader(http.StatusMethodNotAllowed)
-// 		return
-// 	}
-
-//		var input InputData
-//		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-//			w.WriteHeader(http.StatusBadRequest)
-//			fmt.Fprintf(w, "Error: %v", err)
-//			return
-//		}
-//		fmt.Printf("Received input: %+v", input)
-//		responseData := map[string]string{"message": "Received input successfully"}
-//		json.NewEncoder(w).Encode(responseData)
-//	}
-type RequestServer struct {
-	Start       string `json:"start"`
-	Destination string `json:"destination"`
-}
-
-type ResponseServer struct {
-	Output string `json:"output"`
-}
-
 // WikipediaPage represents a Wikipedia page
 type WikipediaPage struct {
 	Query struct {
@@ -136,6 +111,17 @@ func IsTitleValid(url string) bool {
 	return true
 }
 
+type RequestServer struct {
+	Start       string `json:"start"`
+	Destination string `json:"destination"`
+	Algo        string `json:"algo"`
+}
+
+type ResponseServer struct {
+	Success string `json:"success"`
+	Output  string `json:"output"`
+}
+
 func main() {
 	port := 8080
 	c := cors.New(cors.Options{
@@ -159,10 +145,28 @@ func main() {
 			return
 		}
 		// Generate the response message
-		response := ResponseServer{
-			Output: fmt.Sprintf("Start: %s %s", request.Start, request.Destination),
+		var response ResponseServer
+		if IsTitleValid(request.Start) && IsTitleValid((request.Destination)) {
+			// Call the BFS/IDS Function
+			// make a temp variable
+			var b int
+			var c []string
+			var a, d int64
+			if request.Algo == "BFS" {
+				a, b, c, d = BFS(request.Start, request.Destination)
+			} else {
+				a, b, c, d = IDS(request.Start, request.Destination)
+			}
+			response.Output = fmt.Sprintf("Jumlah Artikel yang diperiksa : %d<br/>Jumlah Artikel yang dilalui : %d<br/>Rute penjelajahan : %s", a, b, c[0])
+			for i := 1; i < len(c); i++ {
+				response.Output += fmt.Sprintf("->%s", c[i])
+			}
+			response.Output += fmt.Sprintf("<br />Waktu pencarian : %d ms", d)
+			response.Success = "Success"
+		} else {
+			response.Success = "Fail"
 		}
-		// Encode response data to JSON
+		// Marshal the response
 		responseJSON, err := json.Marshal(response)
 		if err != nil {
 			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)

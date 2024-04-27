@@ -40,8 +40,10 @@
     </div>
     <script>
         function request(){
-            const start = document.getElementById('start').value;
-            const destination = document.getElementById('destination').value;
+            let start = document.getElementById('start').value;
+            start = start.replace(" ", "_")
+            let destination = document.getElementById('destination').value;
+            destination = destination.replace(" ", "_")
 
             document.getElementById('returnVal').style.display = "block";
             document.getElementById('returnVal').innerHTML = "Sedang dilakukan BFS...";
@@ -58,15 +60,18 @@
                 })
             }).then(response => response.json())
             .then(response => {
-                document.getElementById('returnVal').style.display = "block";
-                document.getElementById('returnVal').innerHTML = "Hasil: " + response.output + "<br />" + "Hasil"  ;
+                if (response.success == "Fail"){
+                    document.getElementById('returnVal').innerHTML = "Pencarian Gagal, Tidak Ditemukan Artikel dengan Judul Tersebut"
+                } else document.getElementById('returnVal').innerHTML = response.output;
             })
         }
         function request2(){
-            const start = document.getElementById('start').value;
-            const destination = document.getElementById('destination').value;
+            let start = document.getElementById('start').value;
+            start = start.replace(" ", "_")
+            let destination = document.getElementById('destination').value;
+            destination = destination.replace(" ", "_")
 
-            document.getElementById('returnVal').style.display = "block";
+            document.getElementById('returnVal').style  .display = "block";
             document.getElementById('returnVal').innerHTML = "Sedang dilakukan IDS...";
 
             fetch("http://localhost:8080/req", {
@@ -81,8 +86,9 @@
                 })
             }).then(response => response.json())
             .then(response => {
-                document.getElementById('returnVal').style.display = "block";
-                document.getElementById('returnVal').innerHTML = "Hasil: " + response.output + "<br />" + "Hasil"  ;
+                if (response.success == "Fail"){
+                    document.getElementById('returnVal').innerHTML = "Pencarian Gagal, Tidak Ditemukan Artikel dengan Judul Tersebut"
+                } else document.getElementById('returnVal').innerHTML = response.output;
             })
         }
     </script>

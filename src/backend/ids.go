@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"	
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 var found bool = false
-var artikelDiperiksa = 0
+var artikelDiperiksa int64 = 0
 var path []string
 
 func (node *TreeNode) AddChildren() {
@@ -74,14 +74,17 @@ func DLS(start *TreeNode, depth int, goal string) {
 	}
 }
 
-func IDS(begin string, goal string) (int, int, []string, int64){
+func IDS(begin string, goal string) (int64, int, []string, int64) {
 	ClearVisited()
 	var depth int = 1
+	artikelDiperiksa = 0
+	path = []string{}
+
 	start := time.Now()
 
-	var startNode TreeNode ;
-	startNode.Root = GetTitle(begin);
-	startNode.AddChildren();
+	var startNode TreeNode
+	startNode.Root = GetTitle(begin)
+	startNode.AddChildren()
 	for !found {
 		go DLS(&startNode, depth, goal)
 		depth++

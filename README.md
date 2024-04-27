@@ -27,7 +27,7 @@ Ada 2 langkah untuk menjalankan program, yaitu:
 1. Jalankan backend berupa main.go dengan
 ```
 cd src/backend
-go run main.go
+go run main.go ids.go bfs.go
 ```
 2. Jalankan frontend dengan mendeploy localhost (disarankan menginstall "Live Server" by Ritwick Dey extension di VSCode dan tekan tombol go live di pojok kanan bawah)
 ### Input
