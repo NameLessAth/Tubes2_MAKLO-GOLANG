@@ -53,7 +53,7 @@ func (node *TreeNode) AddChildren() {
 
 func DLS(start *TreeNode, depth int, goal string) {
 
-	if start.Root == goal { //menemukan goal
+	if start.Root == GetTitle(goal) { //menemukan goal
 		path = start.GetPath(path)
 		found = true
 	} else if depth <= 0 { //sudah mencapai kedalaman maksimum tetapi tidak menemukan goal
@@ -85,7 +85,7 @@ func IDS(begin string, goal string) (int64, int, []string, int64) {
 	start := time.Now()
 
 	var startNode TreeNode
-	startNode.Root = begin
+	startNode.Root = GetTitle(begin)
 	startNode.AddChildren()
 	for !found {
 		DLS(&startNode, depth, goal)
